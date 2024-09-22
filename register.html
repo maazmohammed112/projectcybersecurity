@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Registration</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -14,23 +14,45 @@
     </button>
 
     <div class="container">
-        <h1>Login</h1>
-        <form id="loginForm">
+        <h1>Register</h1>
+        <form id="registrationForm">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" required placeholder="Enter your username">
+                <input type="text" id="username" required placeholder="Choose a username">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" required placeholder="Enter your password">
+                <input type="password" id="password" required placeholder="Create a password">
+                <div id="passwordStrength" class="strength-bar"></div> <!-- Password strength bar -->
             </div>
 
             <div class="form-group">
-                <button type="submit">Login</button>
+                <label for="linkedin">LinkedIn Profile Link</label>
+                <input type="url" id="linkedin" required placeholder="Enter your LinkedIn profile link">
+            </div>
+
+            <div class="form-group">
+                <label for="portfolio">Portfolio Link</label>
+                <input type="url" id="portfolio" required placeholder="Enter your portfolio link">
+            </div>
+
+            <div class="form-group">
+                <label for="resume">Upload Resume (PDF)</label>
+                <input type="file" id="resume" accept=".pdf" required>
+            </div>
+
+            <div class="form-group">
+                <label for="profilePic">Upload Profile Picture</label>
+                <input type="file" id="profilePic" accept="image/*" required>
+            </div>
+
+            <div class="form-group">
+                <button type="submit">Register</button>
             </div>
         </form>
-        <p>Don't have an account? <a href="registration.html">Register here</a></p>
+
+        <p>Already have an account? <a href="index.html">Login here</a></p> <!-- Link to login page -->
     </div>
 
     <script>
@@ -41,23 +63,75 @@
             document.querySelector('.toggle-mode i').className = isDarkMode ? 'fas fa-sun' : 'fas fa-lightbulb';
         }
 
-        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        document.getElementById('registrationForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
+            const linkedin = document.getElementById('linkedin').value;
+            const portfolio = document.getElementById('portfolio').value;
+            const resume = document.getElementById('resume').files[0];
+            const profilePic = document.getElementById('profilePic').files[0];
 
-            const response = await fetch('/api/auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            });
+            // Convert files to Base64
+            const reader1 = new FileReader();
+            const reader2 = new FileReader();
+            
+            reader1.onloadend = async function() {
+                const resumeBase64 = reader1.result;
+                
+                reader2.onloadend = async function() {
+                    const profilePicBase64 = reader2.result;
 
-            if (response.ok) {
-                window.location.href = 'dashboard.html'; // Redirect to dashboard
+                    // Send user details to the server
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username,
+                            password,
+                            linkedin,
+                            portfolio,
+                            resume: resumeBase64,
+                            profilePic: profilePicBase64,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        // Prompt user for confirmation
+                        if (confirm("Registration successful! Would you like to log in now?")) {
+                            window.location.href = 'index.html'; // Redirect to login page
+                        }
+                    } else {
+                        alert('Registration failed. Please try again.');
+                    }
+                };
+                reader2.readAsDataURL(profilePic);
+            };
+            reader1.readAsDataURL(resume);
+
+        });
+
+        // Password strength checker
+        document.getElementById('password').addEventListener('input', function() {
+            const strengthBar = document.getElementById('passwordStrength');
+            const password = this.value;
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password) && /[a-z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            strengthBar.style.width = (strength * 25) + '%';
+
+            if (strength === 0) {
+                strengthBar.style.backgroundColor = 'transparent';
+            } else if (strength < 3) {
+                strengthBar.style.backgroundColor = 'red';
             } else {
-                alert('Invalid username or password');
+                strengthBar.style.backgroundColor = 'green';
             }
         });
     </script>
@@ -141,8 +215,12 @@
             background-color: #0056b3;
         }
 
-        a {
-            color: #007BFF;
+        .strength-bar {
+            height: 5px;
+            background-color: transparent;
+            transition: width 0.3s ease;
+            margin-top: 5px;
+            border-radius: 5px;
         }
 
         .toggle-mode {
