@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-mode">
+
+    <button class="toggle-mode" onclick="toggleMode()">
+        <i class="fas fa-lightbulb"></i> <!-- Bulb Icon -->
+    </button>
+
+    <div class="container">
+        <h1>Welcome, <span id="displayUsername">Guest</span></h1>
+        <div style="text-align: center;">
+            <img id="profilePicture" src="" alt="Profile Picture" style="display:none; border-radius: 50%; width: 100px; height: 100px;">
+        </div>
+        
+        <div class="form-group" style="text-align: center; margin-top: 20px;">
+            <button id="linkedinButton" class="link-button" style="display:none;">Open LinkedIn Profile</button>
+            <button id="portfolioButton" class="link-button" style="display:none;">Open Portfolio</button>
+            <button id="resumeButton" class="link-button" style="display:none;">Download Resume</button>
+        </div>
+
+        <div class="form-group">
+            <button id="logoutButton" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
+            document.querySelector('.toggle-mode i').className = isDarkMode ? 'fas fa-sun' : 'fas fa-lightbulb';
+        }
+
+        function displayUserInfo() {
+            const username = localStorage.getItem('username') || 'Guest';
+            const linkedin = localStorage.getItem('linkedin');
+            const portfolio = localStorage.getItem('portfolio');
+            const resume = localStorage.getItem('resume');
+            const profilePic = localStorage.getItem('profilePic');
+
+            document.getElementById('displayUsername').textContent = username;
+            if (linkedin) {
+                const linkedinButton = document.getElementById('linkedinButton');
+                linkedinButton.style.display = 'inline-block';
+                linkedinButton.onclick = function() {
+                    window.open(linkedin, '_blank');
+                };
+            }
+            if (portfolio) {
+                const portfolioButton = document.getElementById('portfolioButton');
+                portfolioButton.style.display = 'inline-block';
+                portfolioButton.onclick = function() {
+                    window.open(portfolio, '_blank');
+                };
+            }
+            if (resume) {
+                const resumeButton = document.getElementById('resumeButton');
+                resumeButton.style.display = 'inline-block';
+                resumeButton.onclick = function() {
+                    window.open(resume, '_blank'); // Download the uploaded resume
+                };
+            }
+            if (profilePic) {
+                const profilePicture = document.getElementById('profilePicture');
+                profilePicture.src = profilePic;
+                profilePicture.style.display = 'block';
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html'; // Redirect to login page
+        }
+
+        displayUserInfo();
+    </script>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        body.light-mode {
+            background-color: #f0f4f7;
+            color: #333;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            width: 400px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .container.dark-mode {
+            background-color: #1e1e1e;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-top: 20px;
+        }
+
+        .link-button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        .link-button:hover {
+            background-color: #0056b3;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .toggle-mode {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</body>
+</html>
